@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>cxk的demo</title>
+	<link rel="stylesheet" href="css/swiper.min.css">
+	<link rel="stylesheet" href="css/cxk.css">
+</head>
+<body>
+<div class="swiper-container txt-swiper">
+  	<div class="swiper-wrapper">
+	    <div class="swiper-slide"><h2>Sing</h2></div>
+	    <div class="swiper-slide"><h2>Dance</h2></div>
+	    <div class="swiper-slide"><h2>Rap</h2></div>
+	    <div class="swiper-slide"><h2>Basketball</h2></div>
+	    <div class="swiper-slide"><h2>Music</h2></div>
+  	</div>
+  	<div class="swiper-button-prev">
+  		<svg viewBox="0 0 40 40">
+    		<polyline class="path" points="25.4 22.55 20 17.15 14.6 22.55"></polyline>
+    	</svg>
+	</div>
+  	<!--左箭头-->
+  	<div class="swiper-button-next">
+  		<svg viewBox="0 0 40 40">
+    		<polyline class="path" points="14.6 17.45 20 22.85 25.4 17.45"></polyline>
+    	</svg>
+	</div>
+  	<div class="swiper-pagination"></div>
+</div>
+<div class="swiper-container img-swiper">
+  	<div class="swiper-wrapper">
+    	<div class="swiper-slide"><img src="images/cxk1.jpg" ></div>
+	    <div class="swiper-slide"><img src="images/cxk2.jpg" ></div>
+	    <div class="swiper-slide"><img src="images/cxk3.jpg" ></div>
+	    <div class="swiper-slide"><img src="images/cxk4.jpg" ></div>
+	    <div class="swiper-slide"><img src="images/cxk5.jpg" ></div>
+  	</div>
+</div>
+<div class="ui-loop"> 
+	<svg viewBox="0 0 54 54">
+	  	<path class="path-loop-bg" d="M27,2A25,25,0,1,1,2,27,25,25,0,0,1,27,2"></path>
+	  	<path class="path-loop" d="M27,2A25,25,0,1,1,2,27,25,25,0,0,1,27,2" ></path>
+	</svg>
+</div>
+<script type="text/javascript" src="js/swiper.min.js"></script><!-- www.swiper.com.cn -->
+<script type="text/javascript" src="js/anime.min.js"></script><!-- www.animejs.cn  -->
+<script type="text/javascript">
+	var imgSwiper = new Swiper('.img-swiper', {
+		direction: 'vertical',
+		watchSlidesVisibility: true,//防止不可点击
+		loop: true,
+		speed: 700,
+	}) 
+	var txtSwiper = new Swiper('.txt-swiper', {
+		direction: 'vertical',
+		loop: true,
+		speed: 700,
+		mousewheel: true,
+		autoplay: {
+			delay: 6000,
+			disableOnInteraction: false,
+		},
+		navigation: {
+			nextEl: '.txt-swiper .swiper-button-next',
+			prevEl: '.txt-swiper .swiper-button-prev',
+		},
+		thumbs: {
+			swiper: imgSwiper,
+		},
+		on: {
+			transitionEnd: function() {
+				delay = this.params.autoplay.delay - 1000; 
+				anime({//用animejs画圈
+					targets: '.path-loop',
+					delay: 750,
+					strokeDashoffset: function(el) {
+						var svgLength = anime.setDashoffset(el);
+						return [svgLength, 0];
+					},
+					easing: 'linear',
+					duration: delay,
+				});
+			},
+			init: function() {
+				numList = '<ul>';
+				for (p = 1; p <= (this.slides.length - 2); p++) {
+					numList += '<li>' + p + '</li>';
+				}
+				numList += '</ul>';
+				this.$el.find('.swiper-pagination').html(numList + ' - <span class="total">' + (this.slides.length - 2) + '</span>');
+				//paginationRender会每次更新dom，无法产生动画效果,所以使用html()生成pagination
+				this.emit('transitionStart');
+			},
+			transitionStart: function() {
+				realIndex = this.realIndex; 
+				speed = this.params.speed; 
+				bullets = this.$el.find('.swiper-pagination li'); 
+				sldieLength = bullets.length;
+				for (i = 0; i < sldieLength; i++) {
+					if ((i - realIndex) > Math.floor(sldieLength/2)) {
+						difference = i - sldieLength - realIndex;
+					} else if ((i - realIndex) < -Math.floor(sldieLength/2)) {
+						difference = i + sldieLength - realIndex;
+					} else {
+						difference = i - realIndex;
+					}
+					bullets.eq(i).transition(speed);
+					bullets.eq(i).transform('rotateX(' + difference * 30 + 'deg) translate3d(0, ' + difference * 30 + 'px, 0)') ;
+					bullets.eq(i).css('opacity', 1 - Math.abs(difference));
+				}
+			}
+		}
+	});
+</script>
+</body>
+</html>
